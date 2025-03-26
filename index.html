@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Extractor</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0d0d0d;
+            color: #00ffcc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            margin-bottom: 10px;
+            transition: transform 0.5s;
+        }
+
+        h1 {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 2em;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            width: 300px;
+            font-size: 1em;
+            background-color: #1a1a1a;
+            color: #00ffcc;
+        }
+
+        input[type="text"]::placeholder {
+            color: #00ffcc;
+            opacity: 0.7;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00ffcc;
+            color: #0d0d0d;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #00cc99;
+            transform: scale(1.05);
+        }
+
+        .player {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .player:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.8);
+        }
+
+        .player img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        footer {
+            margin-top: 20px;
+        }
+
+        .link-container {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .link-container div {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Link Extractor By Python Crime</h2>
+        <h2>Masukkan URL</h2>
+    </header>
+    <input type="text" id="urlInput" placeholder="Masukkan URL di sini" />
+    <button id="extractButton">Ekstrak Link</button>
+    <div class="link-container" id="linkContainer"></div>
+    <footer>
+        <p>&copy; 2023 Link Extractor</p>
+    </footer>
+
+    <script>
+        document.getElementById('extractButton').addEventListener('click', async () => {
+            const url = document.getElementById('urlInput').value;
+            const linkContainer = document.getElementById('linkContainer');
+            linkContainer.innerHTML = '';
+
+            if (!url) {
+                alert('Silakan masukkan URL yang valid.');
+                return;
+            }
+
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+
+                const hrefLinks = Array.from(doc.querySelectorAll('a')).map(a => a.href).filter(Boolean);
+                const srcLinks = Array.from(doc.querySelectorAll('[src]')).map(img => img.src).filter(Boolean);
+
+                linkContainer.innerHTML += '<h1>Link</h1>';
+                hrefLinks.forEach(link => {
+                    const div = document.createElement('div');
+                    div.classList.add('player');
+                    div.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+                    linkContainer.appendChild(div);
+                });
+
+                linkContainer.innerHTML += '<h1>Gambar</h1>';
+                srcLinks.forEach(link => {
+                    const div = document.createElement('div');
+                    div.classList.add('player');
+                    div.innerHTML = `<img src="${link}" alt="Image" /> <a href="${link}" target="_blank">${link}</a>`;
+                    linkContainer.appendChild(div);
+                });
+
+            } catch (error) {
+                console.error('Error fetching the URL:', error);
+                alert('Terjadi kesalahan saat mengambil data dari URL. Pastikan URL valid dan dapat diakses.');
+            }
+        });
+    </script>
+</body>
+</html>
